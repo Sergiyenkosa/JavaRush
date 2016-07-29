@@ -57,6 +57,10 @@ public class CurrencyManipulator {
         list.addAll(denominations.keySet());
         Collections.sort(list);
 
+        int count = 0;
+
+        Map[] maps = new Map[2];
+
         int size = list.size();
 
         for (int cycle = 2; cycle > 0; cycle--) {
@@ -79,15 +83,45 @@ public class CurrencyManipulator {
                     }
 
                     if (a == expectedAmount){
-                        break;
+                        int newCount = 0;
+
+                        for (Map.Entry<Integer, Integer> entry : map2.entrySet()) {
+                            newCount += entry.getValue();
+                        }
+
+                        if (maps[0] != null && count > newCount) {
+                            Map<Integer, Integer> map1Copy = new HashMap();
+                            map1Copy.putAll(map1);
+                            Map<Integer, Integer> map2Copy = new HashMap();
+                            map2Copy.putAll(map2);
+
+                            maps[0] = map1Copy;
+                            maps[1] = map2Copy;
+
+                            count = newCount;
+
+                            i = 0;
+                            break;
+                        }
+                        else {
+                            Map<Integer, Integer> map1Copy = new HashMap();
+                            map1Copy.putAll(map1);
+                            Map<Integer, Integer> map2Copy = new HashMap();
+                            map2Copy.putAll(map2);
+
+                            maps[0] = map1Copy;
+                            maps[1] = map2Copy;
+
+                            count = newCount;
+
+                            i = 0;
+                            break;
+                        }
                     }
                 }
 
 
-                if (a == expectedAmount){
-                    break;
-                }
-                else if (i == 0) {
+                if (i == 0) {
                     a = 0;
                     size = size-1;
                     i = size;
@@ -96,7 +130,7 @@ public class CurrencyManipulator {
                 }
             }
 
-            if (a != expectedAmount) {
+            if (maps[0] == null) {
 
                 a = 0;
                 size = list.size();
@@ -121,9 +155,10 @@ public class CurrencyManipulator {
             }
         }
 
-        if (a == expectedAmount){
-            denominations.putAll(map1);
-            return map2;
+        if (maps[0] != null){
+            denominations.clear();
+            denominations.putAll(maps[0]);
+            return maps[1];
         }
         else {
             throw new NotEnoughMoneyException();
